@@ -22,6 +22,7 @@ use App\Domain\Exception\TaskNotFoundException;
 use App\Http\Request\Api\V1\ChangeTaskStatusRequest;
 use App\Http\Request\Api\V1\CreateTaskRequest;
 use App\Http\Request\Api\V1\UpdateTaskRequest;
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
@@ -48,15 +49,15 @@ class TaskController extends BaseApiController
                 title: $request->title,
                 description: $request->description
             );
-            
+
             $taskId = $this->createTaskCommand->handle($createData);
-            
-            // Fetch the created task to return full response
+
+            // Fetch the created task to return a full response
             $getTaskData = new GetTaskByIdData(id: $taskId);
             $task = $this->getTaskByIdQuery->handle($getTaskData);
-            
+
             return $this->createdResponse($task);
-            
+
         } catch (\InvalidArgumentException $e) {
             return $this->errorResponse($e->getMessage());
         }
@@ -66,7 +67,7 @@ class TaskController extends BaseApiController
     public function list(): JsonResponse
     {
         $tasks = $this->getAllTasksQuery->handle();
-        
+
         return $this->successResponse($tasks);
     }
 
@@ -76,9 +77,9 @@ class TaskController extends BaseApiController
         try {
             $data = new GetTaskByIdData(id: $id);
             $task = $this->getTaskByIdQuery->handle($data);
-            
+
             return $this->successResponse($task);
-            
+
         } catch (TaskNotFoundException $e) {
             return $this->notFoundResponse($e->getMessage());
         }
@@ -95,15 +96,15 @@ class TaskController extends BaseApiController
                 title: $request->title,
                 description: $request->description
             );
-            
+
             $this->updateTaskCommand->handle($updateData);
-            
+
             // Fetch updated task
             $getTaskData = new GetTaskByIdData(id: $id);
             $task = $this->getTaskByIdQuery->handle($getTaskData);
-            
+
             return $this->successResponse($task);
-            
+
         } catch (TaskNotFoundException $e) {
             return $this->notFoundResponse($e->getMessage());
         } catch (\InvalidArgumentException $e) {
@@ -121,20 +122,18 @@ class TaskController extends BaseApiController
                 id: $id,
                 status: $request->status
             );
-            
+
             $this->changeTaskStatusCommand->handle($statusData);
-            
+
             // Fetch updated task
             $getTaskData = new GetTaskByIdData(id: $id);
             $task = $this->getTaskByIdQuery->handle($getTaskData);
-            
+
             return $this->successResponse($task);
-            
+
         } catch (TaskNotFoundException $e) {
             return $this->notFoundResponse($e->getMessage());
-        } catch (InvalidTaskStatusTransitionException $e) {
-            return $this->errorResponse($e->getMessage());
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidTaskStatusTransitionException|InvalidArgumentException $e) {
             return $this->errorResponse($e->getMessage());
         }
     }
@@ -144,11 +143,11 @@ class TaskController extends BaseApiController
     {
         try {
             $deleteData = new DeleteTaskData(id: $id);
-            
+
             $this->deleteTaskCommand->handle($deleteData);
-            
+
             return $this->noContentResponse();
-            
+
         } catch (TaskNotFoundException $e) {
             return $this->notFoundResponse($e->getMessage());
         } catch (TaskCannotBeDeletedException $e) {
