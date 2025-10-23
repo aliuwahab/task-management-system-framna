@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
+use App\Domain\Exception\InvalidTaskStatusTransitionException;
 use App\Domain\ValueObject\TaskId;
 use App\Domain\ValueObject\TaskStatus;
 
@@ -74,6 +75,22 @@ class Task
     public function getUpdatedAt(): \DateTimeImmutable
     {
         return $this->updatedAt;
+    }
+
+    public function changeStatus(TaskStatus $newStatus): void
+    {
+        // Business rule: A task can only be marked as "done" if it was previously in_progress
+        if ($newStatus->isDone() && !$this->status->isInProgress()) {
+            throw new InvalidTaskStatusTransitionException(
+                sprintf(
+                    'Cannot change task status from %s to done. Task must be in_progress first.',
+                    $this->status->getValue()
+                )
+            );
+        }
+
+        $this->status = $newStatus;
+        $this->updatedAt = new \DateTimeImmutable();
     }
 
     private function setTitle(string $title): void
