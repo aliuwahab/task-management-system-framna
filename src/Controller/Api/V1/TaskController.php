@@ -19,8 +19,11 @@ use App\Controller\Api\BaseApiController;
 use App\Domain\Exception\InvalidTaskStatusTransitionException;
 use App\Domain\Exception\TaskCannotBeDeletedException;
 use App\Domain\Exception\TaskNotFoundException;
+use App\Http\Request\Api\V1\ChangeTaskStatusRequest;
+use App\Http\Request\Api\V1\CreateTaskRequest;
+use App\Http\Request\Api\V1\UpdateTaskRequest;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/v1/tasks')]
@@ -37,22 +40,13 @@ class TaskController extends BaseApiController
     }
 
     #[Route('', name: 'api_v1_tasks_create', methods: ['POST'])]
-    public function create(Request $request): JsonResponse
-    {
+    public function create(
+        #[MapRequestPayload] CreateTaskRequest $request
+    ): JsonResponse {
         try {
-            $data = json_decode($request->getContent(), true);
-            
-            if (!isset($data['title']) || trim($data['title']) === '') {
-                return $this->errorResponse('Title is required and cannot be empty');
-            }
-            
-            if (mb_strlen($data['title']) > 255) {
-                return $this->errorResponse('Title cannot exceed 255 characters');
-            }
-            
             $createData = new CreateTaskData(
-                title: $data['title'],
-                description: $data['description'] ?? null
+                title: $request->title,
+                description: $request->description
             );
             
             $taskId = $this->createTaskCommand->handle($createData);
@@ -91,23 +85,15 @@ class TaskController extends BaseApiController
     }
 
     #[Route('/{id}', name: 'api_v1_tasks_update', methods: ['PATCH'])]
-    public function update(string $id, Request $request): JsonResponse
-    {
+    public function update(
+        string $id,
+        #[MapRequestPayload] UpdateTaskRequest $request
+    ): JsonResponse {
         try {
-            $data = json_decode($request->getContent(), true);
-            
-            if (!isset($data['title']) || trim($data['title']) === '') {
-                return $this->errorResponse('Title is required and cannot be empty');
-            }
-            
-            if (mb_strlen($data['title']) > 255) {
-                return $this->errorResponse('Title cannot exceed 255 characters');
-            }
-            
             $updateData = new UpdateTaskData(
                 id: $id,
-                title: $data['title'],
-                description: $data['description'] ?? null
+                title: $request->title,
+                description: $request->description
             );
             
             $this->updateTaskCommand->handle($updateData);
@@ -126,18 +112,14 @@ class TaskController extends BaseApiController
     }
 
     #[Route('/{id}/status', name: 'api_v1_tasks_change_status', methods: ['PATCH'])]
-    public function changeStatus(string $id, Request $request): JsonResponse
-    {
+    public function changeStatus(
+        string $id,
+        #[MapRequestPayload] ChangeTaskStatusRequest $request
+    ): JsonResponse {
         try {
-            $data = json_decode($request->getContent(), true);
-            
-            if (!isset($data['status'])) {
-                return $this->errorResponse('Status is required');
-            }
-            
             $statusData = new ChangeTaskStatusData(
                 id: $id,
-                status: $data['status']
+                status: $request->status
             );
             
             $this->changeTaskStatusCommand->handle($statusData);

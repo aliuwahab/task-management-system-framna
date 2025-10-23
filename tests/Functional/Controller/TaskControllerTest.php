@@ -66,7 +66,7 @@ class TaskControllerTest extends WebTestCase
             'title' => '',
         ]));
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 
     public function testCreateTaskWithTitleTooLong(): void
@@ -79,6 +79,6 @@ class TaskControllerTest extends WebTestCase
             'title' => str_repeat('a', 256),
         ]));
 
-        $this->assertResponseStatusCodeSame(Response::HTTP_BAD_REQUEST);
+        $this->assertResponseStatusCodeSame(Response::HTTP_UNPROCESSABLE_ENTITY);
     }
 }
