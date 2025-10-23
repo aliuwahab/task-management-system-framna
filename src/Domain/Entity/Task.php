@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Entity;
 
 use App\Domain\Exception\InvalidTaskStatusTransitionException;
+use App\Domain\Exception\TaskCannotBeDeletedException;
 use App\Domain\ValueObject\TaskId;
 use App\Domain\ValueObject\TaskStatus;
 
@@ -16,6 +17,7 @@ class Task
     private TaskStatus $status;
     private \DateTimeImmutable $createdAt;
     private \DateTimeImmutable $updatedAt;
+    private bool $deleted = false;
 
     private function __construct(
         TaskId $id,
@@ -77,6 +79,13 @@ class Task
         return $this->updatedAt;
     }
 
+    public function update(string $title, ?string $description): void
+    {
+        $this->setTitle($title);
+        $this->description = $description;
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
     public function changeStatus(TaskStatus $newStatus): void
     {
         // Business rule: A task can only be marked as "done" if it was previously in_progress
@@ -91,6 +100,23 @@ class Task
 
         $this->status = $newStatus;
         $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function delete(): void
+    {
+        // Business rule: A task cannot be deleted if its status is done
+        if ($this->status->isDone()) {
+            throw new TaskCannotBeDeletedException(
+                sprintf('Cannot delete a task with status: %s', $this->status->getValue())
+            );
+        }
+
+        $this->deleted = true;
+    }
+
+    public function isDeleted(): bool
+    {
+        return $this->deleted;
     }
 
     private function setTitle(string $title): void
