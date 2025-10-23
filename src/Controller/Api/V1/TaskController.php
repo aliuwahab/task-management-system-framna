@@ -12,6 +12,7 @@ use App\Application\DTO\ChangeTaskStatusData;
 use App\Application\DTO\CreateTaskData;
 use App\Application\DTO\DeleteTaskData;
 use App\Application\DTO\GetTaskByIdData;
+use App\Application\DTO\TaskResponse;
 use App\Application\DTO\UpdateTaskData;
 use App\Application\Query\GetAllTasksQuery;
 use App\Application\Query\GetTaskByIdQuery;
@@ -23,11 +24,14 @@ use App\Http\Request\Api\V1\ChangeTaskStatusRequest;
 use App\Http\Request\Api\V1\CreateTaskRequest;
 use App\Http\Request\Api\V1\UpdateTaskRequest;
 use InvalidArgumentException;
+use OpenApi\Attributes as OA;
+use Nelmio\ApiDocBundle\Attribute\Model;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/v1/tasks')]
+#[OA\Tag(name: 'Tasks')]
 class TaskController extends BaseApiController
 {
     public function __construct(
@@ -41,6 +45,21 @@ class TaskController extends BaseApiController
     }
 
     #[Route('', name: 'api_v1_tasks_create', methods: ['POST'])]
+    #[OA\Post(
+        summary: 'Create a new task',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(ref: new Model(type: CreateTaskRequest::class))
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Task created successfully',
+                content: new OA\JsonContent(ref: new Model(type: TaskResponse::class))
+            ),
+            new OA\Response(response: 422, description: 'Validation error')
+        ]
+    )]
     public function create(
         #[MapRequestPayload] CreateTaskRequest $request
     ): JsonResponse {
@@ -64,6 +83,19 @@ class TaskController extends BaseApiController
     }
 
     #[Route('', name: 'api_v1_tasks_list', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get all tasks',
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'List of all tasks',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(ref: new Model(type: TaskResponse::class))
+                )
+            )
+        ]
+    )]
     public function list(): JsonResponse
     {
         $tasks = $this->getAllTasksQuery->handle();
@@ -72,6 +104,20 @@ class TaskController extends BaseApiController
     }
 
     #[Route('/{id}', name: 'api_v1_tasks_show', methods: ['GET'])]
+    #[OA\Get(
+        summary: 'Get a single task by ID',
+        parameters: [
+            new OA\Parameter(name: 'id', in: 'path', required: true, schema: new OA\Schema(type: 'string', format: 'uuid'))
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Task found',
+                content: new OA\JsonContent(ref: new Model(type: TaskResponse::class))
+            ),
+            new OA\Response(response: 404, description: 'Task not found')
+        ]
+    )]
     public function show(string $id): JsonResponse
     {
         try {

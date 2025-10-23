@@ -1,0 +1,13 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Task Management System API
+            description: RESTful API for managing tasks with CQRS and Clean Architecture
+            version: 1.0.0
+        servers:
+            - url: http://localhost:8000
+              description: Development server
+    areas:
+        default:
+            path_patterns:
+                - ^/api/v1 # Document all v1 API routes
