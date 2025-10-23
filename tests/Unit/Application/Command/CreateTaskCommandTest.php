@@ -5,22 +5,22 @@ declare(strict_types=1);
 namespace App\Tests\Unit\Application\Command;
 
 use App\Application\Command\CreateTaskCommand;
-use App\Application\Command\CreateTaskCommandHandler;
+use App\Application\DTO\CreateTaskData;
 use App\Domain\Entity\Task;
 use App\Domain\Repository\TaskRepositoryInterface;
 use App\Domain\ValueObject\TaskStatus;
 use PHPUnit\Framework\TestCase;
 
-class CreateTaskCommandHandlerTest extends TestCase
+class CreateTaskCommandTest extends TestCase
 {
     public function testHandleCreatesTaskWithGivenData(): void
     {
         $repository = $this->createMock(TaskRepositoryInterface::class);
-        $handler = new CreateTaskCommandHandler($repository);
+        $command = new CreateTaskCommand($repository);
         
-        $command = new CreateTaskCommand(
-            'Test Task',
-            'Test Description'
+        $data = new CreateTaskData(
+            title: 'Test Task',
+            description: 'Test Description'
         );
         
         $repository->expects($this->once())
@@ -31,7 +31,7 @@ class CreateTaskCommandHandlerTest extends TestCase
                     && $task->getStatus()->getValue() === TaskStatus::TODO;
             }));
         
-        $taskId = $handler->handle($command);
+        $taskId = $command->handle($data);
         
         $this->assertNotNull($taskId);
     }
@@ -39,11 +39,10 @@ class CreateTaskCommandHandlerTest extends TestCase
     public function testHandleCreatesTaskWithoutDescription(): void
     {
         $repository = $this->createMock(TaskRepositoryInterface::class);
-        $handler = new CreateTaskCommandHandler($repository);
+        $command = new CreateTaskCommand($repository);
         
-        $command = new CreateTaskCommand(
-            'Test Task',
-            null
+        $data = new CreateTaskData(
+            title: 'Test Task'
         );
         
         $repository->expects($this->once())
@@ -53,7 +52,7 @@ class CreateTaskCommandHandlerTest extends TestCase
                     && $task->getDescription() === null;
             }));
         
-        $taskId = $handler->handle($command);
+        $taskId = $command->handle($data);
         
         $this->assertNotNull($taskId);
     }
