@@ -15,6 +15,20 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     App\:
         resource: '../src/'
+        exclude:
+            - '../src/DependencyInjection/'
+            - '../src/Domain/Entity/'
+            - '../src/Domain/ValueObject/'
+            - '../src/Domain/Exception/'
+            - '../src/Kernel.php'
+
+    # Repository binding
+    App\Domain\Repository\TaskRepositoryInterface:
+        alias: App\Infrastructure\Repository\DoctrineTaskRepository
+
+    # Expose repository for testing
+    App\Infrastructure\Repository\DoctrineTaskRepository:
+        public: true
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
