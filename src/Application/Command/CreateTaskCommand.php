@@ -8,18 +8,20 @@ use App\Application\DTO\CreateTaskData;
 use App\Domain\Entity\Task;
 use App\Domain\Repository\TaskRepositoryInterface;
 use App\Domain\ValueObject\TaskId;
+use App\Infrastructure\Event\EventPublisher;
 
 final readonly class CreateTaskCommand
 {
     public function __construct(
-        private TaskRepositoryInterface $taskRepository
+        private TaskRepositoryInterface $taskRepository,
+        private EventPublisher $eventPublisher
     ) {
     }
 
     public function handle(CreateTaskData $data): string
     {
         $taskId = TaskId::generate();
-        
+
         $task = Task::create(
             $taskId,
             $data->title,
@@ -27,6 +29,7 @@ final readonly class CreateTaskCommand
         );
 
         $this->taskRepository->save($task);
+        $this->eventPublisher->publishEventsFrom($task);
 
         return $taskId->getValue();
     }
