@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
+use App\Domain\Event\RecordsEvents;
+use App\Domain\Event\TaskCreatedEvent;
+use App\Domain\Event\TaskDeletedEvent;
+use App\Domain\Event\TaskStatusChangedEvent;
+use App\Domain\Event\TaskUpdatedEvent;
 use App\Domain\Exception\InvalidTaskStatusTransitionException;
 use App\Domain\Exception\TaskCannotBeDeletedException;
 use App\Domain\ValueObject\TaskId;
@@ -15,6 +20,7 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class Task
 {
+    use RecordsEvents;
     #[ORM\Id]
     #[ORM\Column(type: 'string', length: 36)]
     private string $idString;
@@ -63,7 +69,7 @@ class Task
     {
         $now = new \DateTimeImmutable();
 
-        return new self(
+        $task = new self(
             $id,
             $title,
             $description,
@@ -71,6 +77,17 @@ class Task
             $now,
             $now
         );
+
+        $task->recordEvent(
+            new TaskCreatedEvent(
+                $id->getValue(),
+                $title,
+                $description,
+                TaskStatus::todo()->getValue()
+            )
+        );
+
+        return $task;
     }
 
     public function getId(): TaskId
@@ -108,6 +125,14 @@ class Task
         $this->setTitle($title);
         $this->description = $description;
         $this->updatedAt = new \DateTimeImmutable();
+
+        $this->recordEvent(
+            new TaskUpdatedEvent(
+                $this->id->getValue(),
+                $title,
+                $description
+            )
+        );
     }
 
     public function changeStatus(TaskStatus $newStatus): void
@@ -122,9 +147,18 @@ class Task
             );
         }
 
+        $oldStatus = $this->status;
         $this->status = $newStatus;
         $this->statusString = $newStatus->getValue();
         $this->updatedAt = new \DateTimeImmutable();
+
+        $this->recordEvent(
+            new TaskStatusChangedEvent(
+                $this->id->getValue(),
+                $oldStatus->getValue(),
+                $newStatus->getValue()
+            )
+        );
     }
 
     public function delete(): void
@@ -137,6 +171,14 @@ class Task
         }
 
         $this->deleted = true;
+
+        $this->recordEvent(
+            new TaskDeletedEvent(
+                $this->id->getValue(),
+                $this->title,
+                $this->status->getValue()
+            )
+        );
     }
 
     public function isDeleted(): bool
