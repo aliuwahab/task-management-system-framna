@@ -16,6 +16,7 @@ use App\Application\DTO\TaskResponse;
 use App\Application\DTO\UpdateTaskData;
 use App\Application\Query\GetAllTasksQuery;
 use App\Application\Query\GetTaskByIdQuery;
+use App\Domain\Repository\TaskFilterCriteria;
 use App\Controller\Api\BaseApiController;
 use App\Domain\Exception\InvalidTaskStatusTransitionException;
 use App\Domain\Exception\TaskCannotBeDeletedException;
@@ -27,6 +28,7 @@ use InvalidArgumentException;
 use OpenApi\Attributes as OA;
 use Nelmio\ApiDocBundle\Attribute\Model;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Attribute\Route;
 
@@ -85,6 +87,15 @@ class TaskController extends BaseApiController
     #[Route('', name: 'api_v1_tasks_list', methods: ['GET'])]
     #[OA\Get(
         summary: 'Get all tasks',
+        parameters: [
+            new OA\Parameter(
+                name: 'status',
+                in: 'query',
+                required: false,
+                description: 'Filter tasks by status (todo, in_progress, done)',
+                schema: new OA\Schema(type: 'string', enum: ['todo', 'in_progress', 'done'])
+            )
+        ],
         responses: [
             new OA\Response(
                 response: 200,
@@ -96,9 +107,17 @@ class TaskController extends BaseApiController
             )
         ]
     )]
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $tasks = $this->getAllTasksQuery->handle();
+        // Build filter criteria from query parameters
+        $status = $request->query->get('status');
+
+        $criteria = null;
+        if ($status !== null) {
+            $criteria = new TaskFilterCriteria(status: $status);
+        }
+
+        $tasks = $this->getAllTasksQuery->handle($criteria);
 
         return $this->successResponse($tasks);
     }

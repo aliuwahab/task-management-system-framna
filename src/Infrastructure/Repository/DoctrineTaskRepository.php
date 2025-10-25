@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Infrastructure\Repository;
 
 use App\Domain\Entity\Task;
+use App\Domain\Repository\TaskFilterCriteria;
 use App\Domain\Repository\TaskRepositoryInterface;
 use App\Domain\ValueObject\TaskId;
 use Doctrine\ORM\EntityManagerInterface;
@@ -27,9 +28,35 @@ final readonly class DoctrineTaskRepository implements TaskRepositoryInterface
         return $this->entityManager->find(Task::class, $id->getValue());
     }
 
-    public function findAll(): array
+    public function findAll(?TaskFilterCriteria $criteria = null): array
     {
-        return $this->entityManager->getRepository(Task::class)->findAll();
+        // If no criteria or no filters, return all tasks
+        if ($criteria === null || !$criteria->hasFilters()) {
+            return $this->entityManager->getRepository(Task::class)->findAll();
+        }
+
+        // Build dynamic query based on criteria
+        $qb = $this->entityManager->createQueryBuilder();
+        $qb->select('t')
+            ->from(Task::class, 't');
+
+        // Dynamically apply filters based on what's set in criteria
+        if ($criteria->status !== null) {
+            $qb->andWhere('t.statusString = :status')
+                ->setParameter('status', $criteria->status);
+        }
+
+        // Future filters can be added here automatically:
+        // if ($criteria->title !== null) {
+        //     $qb->andWhere('t.title LIKE :title')
+        //         ->setParameter('title', '%' . $criteria->title . '%');
+        // }
+        // if ($criteria->createdAfter !== null) {
+        //     $qb->andWhere('t.createdAt >= :createdAfter')
+        //         ->setParameter('createdAfter', $criteria->createdAfter);
+        // }
+
+        return $qb->getQuery()->getResult();
     }
 
     public function delete(Task $task): void

@@ -13,7 +13,10 @@ interface TaskRepositoryInterface
 
     public function findById(TaskId $id): ?Task;
 
-    public function findAll(): array;
+    /**
+     * @return Task[]
+     */
+    public function findAll(?TaskFilterCriteria $criteria = null): array;
 
     public function delete(Task $task): void;
 }

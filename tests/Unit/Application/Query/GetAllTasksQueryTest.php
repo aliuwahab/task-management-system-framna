@@ -7,6 +7,7 @@ namespace App\Tests\Unit\Application\Query;
 use App\Application\DTO\TaskResponse;
 use App\Application\Query\GetAllTasksQuery;
 use App\Domain\Entity\Task;
+use App\Domain\Repository\TaskFilterCriteria;
 use App\Domain\Repository\TaskRepositoryInterface;
 use App\Domain\ValueObject\TaskId;
 use PHPUnit\Framework\TestCase;
@@ -40,14 +41,53 @@ class GetAllTasksQueryTest extends TestCase
     {
         $repository = $this->createMock(TaskRepositoryInterface::class);
         $query = new GetAllTasksQuery($repository);
-        
+
         $repository->expects($this->once())
             ->method('findAll')
             ->willReturn([]);
-        
+
         $responses = $query->handle();
-        
+
         $this->assertIsArray($responses);
         $this->assertCount(0, $responses);
+    }
+
+    public function testHandlePassesFilterCriteriaToRepository(): void
+    {
+        $repository = $this->createMock(TaskRepositoryInterface::class);
+        $query = new GetAllTasksQuery($repository);
+
+        $criteria = new TaskFilterCriteria(status: 'todo');
+
+        $task1 = Task::create(TaskId::generate(), 'Todo Task 1', null);
+        $task2 = Task::create(TaskId::generate(), 'Todo Task 2', null);
+
+        $repository->expects($this->once())
+            ->method('findAll')
+            ->with($criteria)
+            ->willReturn([$task1, $task2]);
+
+        $responses = $query->handle($criteria);
+
+        $this->assertCount(2, $responses);
+        $this->assertContainsOnlyInstancesOf(TaskResponse::class, $responses);
+    }
+
+    public function testHandleWithNullCriteriaReturnsAllTasks(): void
+    {
+        $repository = $this->createMock(TaskRepositoryInterface::class);
+        $query = new GetAllTasksQuery($repository);
+
+        $task1 = Task::create(TaskId::generate(), 'Task 1', null);
+        $task2 = Task::create(TaskId::generate(), 'Task 2', null);
+
+        $repository->expects($this->once())
+            ->method('findAll')
+            ->with(null)
+            ->willReturn([$task1, $task2]);
+
+        $responses = $query->handle(null);
+
+        $this->assertCount(2, $responses);
     }
 }

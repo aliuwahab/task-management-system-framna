@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Integration\Infrastructure\Repository;
 
 use App\Domain\Entity\Task;
+use App\Domain\Repository\TaskFilterCriteria;
 use App\Domain\ValueObject\TaskId;
 use App\Domain\ValueObject\TaskStatus;
 use App\Infrastructure\Repository\DoctrineTaskRepository;
@@ -107,5 +108,75 @@ class DoctrineTaskRepositoryTest extends KernelTestCase
         $foundTask = $this->repository->findById($taskId);
 
         $this->assertNull($foundTask);
+    }
+
+    public function testFindAllWithStatusFilterReturnOnlyMatchingTasks(): void
+    {
+        // Create tasks with different statuses
+        $todoTask1 = Task::create(TaskId::generate(), 'Todo Task 1', null);
+        $todoTask2 = Task::create(TaskId::generate(), 'Todo Task 2', null);
+
+        $inProgressTask = Task::create(TaskId::generate(), 'In Progress Task', null);
+        $inProgressTask->changeStatus(TaskStatus::inProgress());
+
+        $doneTask = Task::create(TaskId::generate(), 'Done Task', null);
+        $doneTask->changeStatus(TaskStatus::inProgress());
+        $doneTask->changeStatus(TaskStatus::done());
+
+        $this->repository->save($todoTask1);
+        $this->repository->save($todoTask2);
+        $this->repository->save($inProgressTask);
+        $this->repository->save($doneTask);
+
+        // Filter by 'todo' status
+        $criteria = new TaskFilterCriteria(status: TaskStatus::TODO);
+        $todoTasks = $this->repository->findAll($criteria);
+
+        $this->assertCount(2, $todoTasks);
+        foreach ($todoTasks as $task) {
+            $this->assertTrue($task->getStatus()->isTodo());
+        }
+
+        // Filter by 'in_progress' status
+        $criteria = new TaskFilterCriteria(status: TaskStatus::IN_PROGRESS);
+        $inProgressTasks = $this->repository->findAll($criteria);
+
+        $this->assertCount(1, $inProgressTasks);
+        $this->assertTrue($inProgressTasks[0]->getStatus()->isInProgress());
+
+        // Filter by 'done' status
+        $criteria = new TaskFilterCriteria(status: TaskStatus::DONE);
+        $doneTasks = $this->repository->findAll($criteria);
+
+        $this->assertCount(1, $doneTasks);
+        $this->assertTrue($doneTasks[0]->getStatus()->isDone());
+    }
+
+    public function testFindAllWithNullCriteriaReturnsAllTasks(): void
+    {
+        $task1 = Task::create(TaskId::generate(), 'Task 1', null);
+        $task2 = Task::create(TaskId::generate(), 'Task 2', null);
+        $task2->changeStatus(TaskStatus::inProgress());
+
+        $this->repository->save($task1);
+        $this->repository->save($task2);
+
+        $allTasks = $this->repository->findAll(null);
+
+        $this->assertCount(2, $allTasks);
+    }
+
+    public function testFindAllWithEmptyCriteriaReturnsAllTasks(): void
+    {
+        $task1 = Task::create(TaskId::generate(), 'Task 1', null);
+        $task2 = Task::create(TaskId::generate(), 'Task 2', null);
+
+        $this->repository->save($task1);
+        $this->repository->save($task2);
+
+        $criteria = new TaskFilterCriteria(); // No filters set
+        $allTasks = $this->repository->findAll($criteria);
+
+        $this->assertCount(2, $allTasks);
     }
 }
