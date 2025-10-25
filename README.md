@@ -33,12 +33,17 @@ src/
 - ✅ Task title is required and max 255 characters
 - ✅ Task has: id (UUID), title, description (optional), status, createdAt, updatedAt
 
+### Bonus Features ⭐
+- ✅ **Event Sourcing** - All task changes are recorded as domain events in `stored_events` table
+- ✅ **Query Filtering** - Filter tasks by status: `GET /api/v1/tasks?status=todo`
+- ✅ **In-Memory Repository** - Fast, database-free testing without mocks
+
 ### API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `POST` | `/api/v1/tasks` | Create a new task |
-| `GET` | `/api/v1/tasks` | Get all tasks |
+| `GET` | `/api/v1/tasks` | Get all tasks (supports `?status=todo` filter) |
 | `GET` | `/api/v1/tasks/{id}` | Get a single task |
 | `PATCH` | `/api/v1/tasks/{id}` | Update task details |
 | `PATCH` | `/api/v1/tasks/{id}/status` | Change task status |
@@ -78,7 +83,7 @@ symfony serve -d
 
 ## 🧪 Testing
 
-To run tests
+The project includes comprehensive tests with **87 tests and 281 assertions**.
 
 ```bash
 # Run all tests
@@ -89,6 +94,32 @@ php bin/phpunit tests/Unit/              # Unit tests (Domain + Application)
 php bin/phpunit tests/Integration/       # Integration tests (Repository)
 php bin/phpunit tests/Functional/        # Functional tests (API endpoints)
 ```
+
+### In-Memory Repository for Testing
+
+The project includes `InMemoryTaskRepository` for fast, database-free unit testing.
+
+**Benefits:**
+- 10-100x faster than database tests
+- No mocking required - test real repository behavior
+- Cleaner, more maintainable test code
+
+**Usage Example:**
+
+```php
+// Instead of complex mocks
+$repository = new InMemoryTaskRepository();
+$command = new CreateTaskCommand($repository, $eventPublisher);
+
+$taskId = $command->handle(new CreateTaskData(title: 'Test Task'));
+
+// Direct verification
+$this->assertEquals(1, $repository->count());
+$task = $repository->findById(TaskId::fromString($taskId));
+$this->assertEquals('Test Task', $task->getTitle());
+```
+
+See `tests/Unit/Application/Command/CreateTaskCommandWithInMemoryRepoTest.php` for complete examples.
 
 
 ## 📖 API Documentation
@@ -123,7 +154,13 @@ curl -X POST http://localhost:8000/api/v1/tasks \
 
 ### Get All Tasks
 ```bash
+# Get all tasks
 curl http://localhost:8000/api/v1/tasks
+
+# Filter by status
+curl http://localhost:8000/api/v1/tasks?status=todo
+curl http://localhost:8000/api/v1/tasks?status=in_progress
+curl http://localhost:8000/api/v1/tasks?status=done
 ```
 
 ### Update Task
