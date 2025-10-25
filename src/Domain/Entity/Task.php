@@ -21,29 +21,30 @@ use Doctrine\ORM\Mapping as ORM;
 class Task
 {
     use RecordsEvents;
+
     #[ORM\Id]
     #[ORM\Column(type: 'string', length: 36)]
     private string $idString;
-    
+
     private TaskId $id;
-    
+
     #[ORM\Column(type: 'string', length: 255)]
     private string $title;
-    
+
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $description;
-    
+
     #[ORM\Column(type: 'string', length: 50)]
     private string $statusString;
-    
+
     private TaskStatus $status;
-    
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
-    
+
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $updatedAt;
-    
+
     #[ORM\Column(type: 'boolean')]
     private bool $deleted = false;
 
@@ -196,7 +197,7 @@ class Task
     private function setTitle(string $title): void
     {
         $trimmedTitle = trim($title);
-        
+
         if ($trimmedTitle === '') {
             throw new \InvalidArgumentException('Task title cannot be empty');
         }
