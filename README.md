@@ -2,52 +2,16 @@
 
 A RESTful API for managing tasks built with **Symfony 7**, for assessment.
 
-### Layers
-
-```
-src/
-├── Domain/              # Business logic & entities (framework-independent)
-│   ├── Entity/         # Task entity with business rules
-│   ├── ValueObject/    # TaskId, TaskStatus (immutable)
-│   ├── Repository/     # Repository interfaces
-│   └── Exception/      # Domain exceptions
-├── Application/         # Use cases (CQRS)
-│   ├── Command/        # Write operations (Create, Update, Delete, ChangeStatus)
-│   ├── Query/          # Read operations (GetById, GetAll)
-│   └── DTO/            # Data Transfer Objects
-├── Infrastructure/      # Technical implementations
-│   └── Repository/     # Doctrine ORM implementation
-├── Controller/          # API endpoints
-│   └── Api/V1/         # Versioned controllers
-└── Http/Request/        # Request DTOs with validation
-    └── Api/V1/
-```
-
-## 🚀 Features
-
-### Business Rules ✅
+### Features Implemented ✅
+- ✅ A task can be created with validation on fields
 - ✅ A task cannot be deleted if its status is `done`
 - ✅ A task can only be marked as "done" if it was previously `in_progress`
-- ✅ A task title must be unique (enforced at application level)
 - ✅ Task title is required and max 255 characters
 - ✅ Task has: id (UUID), title, description (optional), status, createdAt, updatedAt
-
-### Bonus Features ⭐
 - ✅ **Event Sourcing** - All task changes are recorded as domain events in `stored_events` table
 - ✅ **Query Filtering** - Filter tasks by status: `GET /api/v1/tasks?status=todo`
 - ✅ **In-Memory Repository** - Fast, database-free testing without mocks
 
-### API Endpoints
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/v1/tasks` | Create a new task |
-| `GET` | `/api/v1/tasks` | Get all tasks (supports `?status=todo` filter) |
-| `GET` | `/api/v1/tasks/{id}` | Get a single task |
-| `PATCH` | `/api/v1/tasks/{id}` | Update task details |
-| `PATCH` | `/api/v1/tasks/{id}/status` | Change task status |
-| `DELETE` | `/api/v1/tasks/{id}` | Delete a task (if allowed) |
-| `GET` | `/api/v1/docs` | Interactive API documentation (Swagger UI) |
 
 ## 📦 Installation
 
@@ -63,7 +27,7 @@ cd task-management-system-framna
 ./setup.sh
 ```
 
-**That's it!** The setup script will:
+** The setup script will:
 - ✅ Validate PHP version
 - ✅ Copy environment configuration
 - ✅ Install dependencies
@@ -88,13 +52,41 @@ php -S localhost:8000 -t public
 ```
 
 The app is now running at **http://localhost:8000/api/v1/tasks**
+- ✅ **API documentation** - Available at, generated with openspec `/api/v1/docs`
 
-### What's Pre-configured
 
-- ✅ **SQLite database** - No database server needed
-- ✅ **All environment variables** - Set with sensible defaults
-- ✅ **CORS enabled** - Ready for frontend development
-- ✅ **API documentation** - Available at `/api/v1/docs`
+### Achitecture Layer
+
+```
+src/
+├── Domain/              # Business logic & entities (framework-independent)
+│   ├── Entity/         # Task entity with business rules
+│   ├── ValueObject/    # TaskId, TaskStatus (immutable)
+│   ├── Repository/     # Repository interfaces
+│   └── Exception/      # Domain exceptions
+├── Application/         # Use cases (CQRS)
+│   ├── Command/        # Write operations (Create, Update, Delete, ChangeStatus)
+│   ├── Query/          # Read operations (GetById, GetAll)
+│   └── DTO/            # Data Transfer Objects
+├── Infrastructure/      # Technical implementations
+│   └── Repository/     # Doctrine ORM implementation
+├── Controller/          # API endpoints
+│   └── Api/V1/         # Versioned controllers
+└── Http/Request/        # Request DTOs with validation
+    └── Api/V1/
+```
+
+### API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v1/tasks` | Create a new task |
+| `GET` | `/api/v1/tasks` | Get all tasks (supports `?status=todo` filter) |
+| `GET` | `/api/v1/tasks/{id}` | Get a single task |
+| `PATCH` | `/api/v1/tasks/{id}` | Update task details |
+| `PATCH` | `/api/v1/tasks/{id}/status` | Change task status |
+| `DELETE` | `/api/v1/tasks/{id}` | Delete a task (if allowed) |
+| `GET` | `/api/v1/docs` | Interactive API documentation (Swagger UI) |
 
 ## 🧪 Testing
 
