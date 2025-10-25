@@ -34,14 +34,11 @@ final class InMemoryTaskRepository implements TaskRepositoryInterface
     {
         $tasks = array_values($this->tasks);
 
-        // If no criteria or no filters, return all tasks
         if ($criteria === null || !$criteria->hasFilters()) {
             return $tasks;
         }
 
-        // Apply filters
         return array_values(array_filter($tasks, function (Task $task) use ($criteria) {
-            // Filter by status if specified
             if ($criteria->status !== null) {
                 if ($task->getStatus()->getValue() !== $criteria->status) {
                     return false;

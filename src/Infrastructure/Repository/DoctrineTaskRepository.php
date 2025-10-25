@@ -30,17 +30,14 @@ final readonly class DoctrineTaskRepository implements TaskRepositoryInterface
 
     public function findAll(?TaskFilterCriteria $criteria = null): array
     {
-        // If no criteria or no filters, return all tasks
         if ($criteria === null || !$criteria->hasFilters()) {
             return $this->entityManager->getRepository(Task::class)->findAll();
         }
 
-        // Build dynamic query based on criteria
         $qb = $this->entityManager->createQueryBuilder();
         $qb->select('t')
             ->from(Task::class, 't');
 
-        // Dynamically apply filters based on what's set in criteria
         if ($criteria->status !== null) {
             $qb->andWhere('t.statusString = :status')
                 ->setParameter('status', $criteria->status);

@@ -73,7 +73,6 @@ class TaskController extends BaseApiController
 
             $taskId = $this->createTaskCommand->handle($createData);
 
-            // Fetch the created task to return a full response
             $getTaskData = new GetTaskByIdData(id: $taskId);
             $task = $this->getTaskByIdQuery->handle($getTaskData);
 
@@ -109,7 +108,6 @@ class TaskController extends BaseApiController
     )]
     public function list(Request $request): JsonResponse
     {
-        // Build filter criteria from query parameters
         $status = $request->query->get('status');
 
         $criteria = null;
@@ -164,7 +162,6 @@ class TaskController extends BaseApiController
 
             $this->updateTaskCommand->handle($updateData);
 
-            // Fetch updated task
             $getTaskData = new GetTaskByIdData(id: $id);
             $task = $this->getTaskByIdQuery->handle($getTaskData);
 
@@ -190,7 +187,6 @@ class TaskController extends BaseApiController
 
             $this->changeTaskStatusCommand->handle($statusData);
 
-            // Fetch updated task
             $getTaskData = new GetTaskByIdData(id: $id);
             $task = $this->getTaskByIdQuery->handle($getTaskData);
 
