@@ -11,6 +11,7 @@ A RESTful API for managing tasks built with **Symfony 7**, for assessment.
 - ✅ **Event Sourcing** - All task changes are recorded as domain events in `stored_events` table
 - ✅ **Query Filtering** - Filter tasks by status: `GET /api/v1/tasks?status=todo`
 - ✅ **In-Memory Repository** - Fast, database-free testing without mocks
+- ✅ **API documentation**
 
 
 ## 📦 Installation
@@ -52,7 +53,17 @@ php -S localhost:8000 -t public
 ```
 
 The app is now running at **http://localhost:8000/api/v1/tasks**
+
+## 📖 API Documentation
+
+Interactive API documentation is available at:
+
 - ✅ **API documentation** - Available at, generated with openspec `/api/v1/docs`
+
+**http://localhost:8000/api/v1/docs**
+
+The documentation is auto-generated from code using **OpenAPI/Swagger** annotations.
+
 
 
 ### Achitecture Layer
@@ -130,14 +141,6 @@ $this->assertEquals('Test Task', $task->getTitle());
 ```
 
 See `tests/Unit/Application/Command/CreateTaskCommandWithInMemoryRepoTest.php` for complete examples.
-
-## 📖 API Documentation
-
-Interactive API documentation is available at:
-
-**http://localhost:8000/api/v1/docs**
-
-The documentation is auto-generated from code using **OpenAPI/Swagger** annotations.
 
 ## 🔧 Technology Stack
 
