@@ -2,7 +2,6 @@
 
 A RESTful API for managing tasks built with **Symfony 7**, for assessment.
 
-
 ### Layers
 
 ```
@@ -97,7 +96,9 @@ The app is now running at **http://localhost:8000/api/v1/tasks**
 - ✅ **CORS enabled** - Ready for frontend development
 - ✅ **API documentation** - Available at `/api/v1/docs`
 
-### Running Tests
+## 🧪 Testing
+
+The project includes comprehensive tests with **87 tests and 281 assertions**.
 
 ```bash
 # Run all tests
@@ -105,20 +106,11 @@ vendor/bin/phpunit
 
 # Run with detailed output
 vendor/bin/phpunit --testdox
-```
-
-## 🧪 Testing
-
-The project includes comprehensive tests with **87 tests and 281 assertions**.
-
-```bash
-# Run all tests
-php bin/phpunit
 
 # Run specific test suites
-php bin/phpunit tests/Unit/              # Unit tests (Domain + Application)
-php bin/phpunit tests/Integration/       # Integration tests (Repository)
-php bin/phpunit tests/Functional/        # Functional tests (API endpoints)
+vendor/bin/phpunit tests/Unit/              # Unit tests (Domain + Application)
+vendor/bin/phpunit tests/Integration/       # Integration tests (Repository)
+vendor/bin/phpunit tests/Functional/        # Functional tests (API endpoints)
 ```
 
 ### In-Memory Repository for Testing
@@ -146,7 +138,6 @@ $this->assertEquals('Test Task', $task->getTitle());
 ```
 
 See `tests/Unit/Application/Command/CreateTaskCommandWithInMemoryRepoTest.php` for complete examples.
-
 
 ## 📖 API Documentation
 
