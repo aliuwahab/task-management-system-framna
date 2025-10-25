@@ -6,9 +6,9 @@ namespace App\Application\Command;
 
 use App\Application\DTO\CreateTaskData;
 use App\Domain\Entity\Task;
+use App\Domain\Event\EventPublisher;
 use App\Domain\Repository\TaskRepositoryInterface;
 use App\Domain\ValueObject\TaskId;
-use App\Infrastructure\Event\EventPublisher;
 
 final readonly class CreateTaskCommand
 {

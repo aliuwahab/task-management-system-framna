@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Event;
 
-abstract class AbstractDomainEvent implements DomainEvent
+abstract readonly class AbstractDomainEvent implements DomainEvent
 {
     private readonly \DateTimeImmutable $occurredOn;
 

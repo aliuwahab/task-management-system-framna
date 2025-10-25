@@ -24,6 +24,12 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Domain/Entity'
                 prefix: 'App\Domain\Entity'
                 alias: App
+            Infrastructure:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/Infrastructure/Event'
+                prefix: 'App\Infrastructure\Event'
+                alias: Infrastructure
         controller_resolver:
             auto_mapping: false
 

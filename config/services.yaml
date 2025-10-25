@@ -30,5 +30,13 @@ services:
     App\Infrastructure\Repository\DoctrineTaskRepository:
         public: true
 
+    # Event Store binding
+    App\Domain\Event\EventStore:
+        alias: App\Infrastructure\Event\DoctrineEventStore
+
+    # Event Publisher binding
+    App\Domain\Event\EventPublisher:
+        alias: App\Infrastructure\Event\DoctrineEventPublisher
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

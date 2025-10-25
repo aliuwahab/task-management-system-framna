@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Application\Command;
 
 use App\Application\DTO\ChangeTaskStatusData;
+use App\Domain\Event\EventPublisher;
 use App\Domain\Exception\TaskNotFoundException;
 use App\Domain\Repository\TaskRepositoryInterface;
 use App\Domain\ValueObject\TaskId;
 use App\Domain\ValueObject\TaskStatus;
-use App\Infrastructure\Event\EventPublisher;
 
 final readonly class ChangeTaskStatusCommand
 {
