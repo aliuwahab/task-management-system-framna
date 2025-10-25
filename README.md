@@ -58,7 +58,7 @@ src/
 ### Quick Start (Automated)
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/aliuwahab/task-management-system-framna.git
 cd task-management-system-framna
 ./setup.sh
 ```
