@@ -55,30 +55,56 @@ src/
 ### Requirements
 - PHP 8.3+
 - Composer
-- Symfony CLI (optional)
 
-### Setup
+### Quick Start (Automated)
 
 ```bash
-# Clone the repository
 git clone <repository-url>
 cd task-management-system-framna
+./setup.sh
+```
 
-# Install dependencies
+**That's it!** The setup script will:
+- ✅ Validate PHP version
+- ✅ Copy environment configuration
+- ✅ Install dependencies
+- ✅ Create database schema
+- ✅ Run tests to verify setup
+- ✅ Optionally start the server
+
+### Manual Setup (Alternative)
+
+```bash
+# 1. Copy environment file
+cp .env.example .env
+
+# 2. Install dependencies
 composer install
 
-# Configure database (SQLite by default)
-# Edit .env if needed
-
-# Create database schema
+# 3. Create database schema
 php bin/console doctrine:schema:create
 
-# Run tests
-php bin/phpunit
+# 4. Start server
+php -S localhost:8000 -t public
+```
 
-# Start development server
-symfony serve -d
-# Or: php -S localhost:8000 -t public
+The app is now running at **http://localhost:8000/api/v1/tasks**
+
+### What's Pre-configured
+
+- ✅ **SQLite database** - No database server needed
+- ✅ **All environment variables** - Set with sensible defaults
+- ✅ **CORS enabled** - Ready for frontend development
+- ✅ **API documentation** - Available at `/api/v1/docs`
+
+### Running Tests
+
+```bash
+# Run all tests
+vendor/bin/phpunit
+
+# Run with detailed output
+vendor/bin/phpunit --testdox
 ```
 
 ## 🧪 Testing
