@@ -123,11 +123,6 @@ vendor/bin/phpunit tests/Functional/        # Functional tests (API endpoints)
 
 The project includes `InMemoryTaskRepository` for fast, database-free unit testing.
 
-**Benefits:**
-- 10-100x faster than database tests
-- No mocking required - test real repository behavior
-- Cleaner, more maintainable test code
-
 **Usage Example:**
 
 ```php
