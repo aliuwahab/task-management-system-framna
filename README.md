@@ -13,6 +13,9 @@ A RESTful API for managing tasks built with **Symfony 7**, for assessment.
 - ✅ **In-Memory Repository** - Fast, database-free testing without mocks
 - ✅ **API documentation**
 
+### Future Enhancements 🚀
+- 🔐 **User Authentication** - JWT-based authentication (LexikJWTAuthenticationBundle) with User entity, registration, and protected endpoints. Not implemented to keep assessment focused on core requirements and bonus features, but would be the logical next step for production use.
+
 
 ## 📦 Installation
 
